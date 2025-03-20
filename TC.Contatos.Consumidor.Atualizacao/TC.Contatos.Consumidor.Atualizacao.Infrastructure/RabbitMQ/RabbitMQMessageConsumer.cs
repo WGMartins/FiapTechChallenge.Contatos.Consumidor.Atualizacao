@@ -46,7 +46,7 @@ public class RabbitMQMessageConsumer : IMessageConsumer
 
                 await channel.BasicConsumeAsync(
                         queue: _settings.Value.Queue,
-                        autoAck: false,
+                        autoAck: true,
                         consumer: consumer);
             }
         }
