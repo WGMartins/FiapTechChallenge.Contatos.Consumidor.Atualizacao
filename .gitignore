@@ -52,3 +52,8 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+/.vs
+/TC.Contatos.Consumidor.Inclusao/.vs
+/TC.Contatos.Consumidor.Inclusao/data/data
+/TC.Contatos.Consumidor.Atualizacao/.vs
+/TC.Contatos.Consumidor.Atualizacao/data/data
