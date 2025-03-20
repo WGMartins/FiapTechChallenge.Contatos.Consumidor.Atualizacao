@@ -2,54 +2,67 @@
 using Domain.RegionalAggregate;
 using FluentValidation;
 using Moq;
-using UseCase.ContatoUseCase.Adicionar;
+using UseCase.ContatoUseCase.Alterar;
 using UseCase.Interfaces;
 
-namespace UnitTest.UseCase.ContatoUseCase.Adicionar
+namespace UnitTest.UseCase.ContatoUseCase.Alterar
 {
-    public class AdicionarContatoUseCaseTest
+    public class AlterarContatoUseCaseTest
     {
-        private readonly AdicionarContatoDtoBuilder _builder;
+        private readonly AlterarContatoDtoBuilder _builder;
         private readonly Mock<IContatoRepository> _contatoRepository;
-        private readonly IValidator<AdicionarContatoDto> _validator;
-        private readonly IAdicionarContatoUseCase _adicionarContatoUseCase;
+        private readonly IValidator<AlterarContatoDto> _validator;
+        private readonly IAlterarContatoUseCase _alterarContatoUseCase;
 
-        public AdicionarContatoUseCaseTest()
+        public AlterarContatoUseCaseTest()
         {
-            _validator = new AdicionarContatoValidator();
+            _validator = new AlterarContatoValidator();
             _contatoRepository = new Mock<IContatoRepository>();
-            _builder = new AdicionarContatoDtoBuilder();
-
-            _adicionarContatoUseCase = new AdicionarContatoUseCase(_contatoRepository.Object, _validator);
-
+            _builder = new AlterarContatoDtoBuilder();
+            _alterarContatoUseCase = new AlterarContatoUseCase(_contatoRepository.Object, _validator);
         }
 
         [Fact]
-        public void AdicionarContatoUseCase_Adicionar_Sucesso()
+        public void AlterarContatoUseCase_Alterar_Sucesso()
         {
             // Arrange
-            Guid id = Guid.NewGuid();
-            var adicionarContatoDto = _builder.Default().WithId(id).Build();
-            _contatoRepository.Setup(s => s.Adicionar(It.IsAny<Contato>()));
+            var alterarContatoDto = _builder.Default().Build();
+
+            _contatoRepository.Setup(s => s.Alterar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.ObterPorId(It.IsAny<Guid>()))
+                .Returns(new Contato(alterarContatoDto.Id,
+                    alterarContatoDto.Nome,
+                    alterarContatoDto.Telefone,
+                    alterarContatoDto.Email,
+                    alterarContatoDto.RegionalId));
 
             // Act
-            var result = _adicionarContatoUseCase.Adicionar(adicionarContatoDto);
+            _alterarContatoUseCase.Alterar(alterarContatoDto);
 
-            // Assert
-            Assert.True(result.Id != default);
+            // Assert            
+            _contatoRepository.Verify(x => x.Alterar(It.IsAny<Contato>()), Times.Once());
+            _contatoRepository.Verify(x => x.ObterPorId(It.IsAny<Guid>()), Times.Once());
+
         }
 
         [Theory]
         [InlineData("")]
         [InlineData("     ")]
-        public void AdicionarContatoUseCase_Adicionar_ErroValidacaoNome(string nome)
+        public void AlterarContatoUseCase_Alterar_ErroValidacaoNome(string nome)
         {
             // Arrange
-            var adicionarContatoDto = _builder.Default().WithName(nome).Build();
-            _contatoRepository.Setup(s => s.Adicionar(It.IsAny<Contato>()));
+            var alterarContatoDto = _builder.Default().WithName(nome).Build();
+
+            _contatoRepository.Setup(s => s.Alterar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.ObterPorId(It.IsAny<Guid>()))
+                .Returns(new Contato(alterarContatoDto.Id,
+                    alterarContatoDto.Nome,
+                    alterarContatoDto.Telefone,
+                    alterarContatoDto.Email,
+                    alterarContatoDto.RegionalId));
 
             // Act
-            var result = Assert.Throws<Exception>(() => _adicionarContatoUseCase.Adicionar(adicionarContatoDto));
+            var result = Assert.Throws<Exception>(() => _alterarContatoUseCase.Alterar(alterarContatoDto));
 
             // Assert
             Assert.Contains("Nome não pode ser nulo ou vazio", result.Message);
@@ -58,47 +71,68 @@ namespace UnitTest.UseCase.ContatoUseCase.Adicionar
         [Theory]
         [InlineData("")]
         [InlineData("     ")]
-        public void AdicionarContatoUseCase_Adicionar_ErroValidacaoTelefoneNuloVazio(string telefone)
+        public void AlterarContatoUseCase_Alterar_ErroValidacaoTelefoneNuloVazio(string telefone)
         {
             // Arrange
-            var adicionarContatoDto = _builder.Default().WithTelefone(telefone).Build();
-            _contatoRepository.Setup(s => s.Adicionar(It.IsAny<Contato>()));
+            var alterarContatoDto = _builder.Default().WithTelefone(telefone).Build();
+
+            _contatoRepository.Setup(s => s.Alterar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.ObterPorId(It.IsAny<Guid>()))
+                .Returns(new Contato(alterarContatoDto.Id,
+                    alterarContatoDto.Nome,
+                    alterarContatoDto.Telefone,
+                    alterarContatoDto.Email,
+                    alterarContatoDto.RegionalId));
 
             // Act
-            var result = Assert.Throws<Exception>(() => _adicionarContatoUseCase.Adicionar(adicionarContatoDto));
+            var result = Assert.Throws<Exception>(() => _alterarContatoUseCase.Alterar(alterarContatoDto));
 
             // Assert
             Assert.Contains("Telefone não pode ser nulo ou vazio", result.Message);
+
         }
 
         [Theory]
-        [InlineData("12345754-556789")]
-        public void AdicionarContatoUseCase_Adicionar_ErroValidacaoTelefoneTamanho(string telefone)
+        [InlineData("1234598-8546789")]
+        public void AlterarContatoUseCase_Alterar_ErroValidacaoTelefoneTamanho(string telefone)
         {
             // Arrange
-            var adicionarContatoDto = _builder.Default().WithTelefone(telefone).Build();
-            _contatoRepository.Setup(s => s.Adicionar(It.IsAny<Contato>()));
+            var alterarContatoDto = _builder.Default().WithTelefone(telefone).Build();
+
+            _contatoRepository.Setup(s => s.Alterar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.ObterPorId(It.IsAny<Guid>()))
+                .Returns(new Contato(alterarContatoDto.Id,
+                    alterarContatoDto.Nome,
+                    alterarContatoDto.Telefone,
+                    alterarContatoDto.Email,
+                    alterarContatoDto.RegionalId));
 
             // Act
-            var result = Assert.Throws<Exception>(() => _adicionarContatoUseCase.Adicionar(adicionarContatoDto));
+            var result = Assert.Throws<Exception>(() => _alterarContatoUseCase.Alterar(alterarContatoDto));
 
             // Assert
             Assert.Contains("Foi atingido o número máximo de caracteres (10)", result.Message);
         }
 
         [Theory]
-        [InlineData("12345-6789")]
         [InlineData("08645-6441")]
         [InlineData("34887037")]
         [InlineData("999999999")]
-        public void AdicionarContatoUseCase_Adicionar_ErroValidacaoTelefoneFormato(string telefone)
+        public void AlterarContatoUseCase_Alterar_ErroValidacaoTelefoneFormato(string telefone)
         {
             // Arrange
-            var adicionarContatoDto = _builder.Default().WithTelefone(telefone).Build();
-            _contatoRepository.Setup(s => s.Adicionar(It.IsAny<Contato>()));
+            var alterarContatoDto = _builder.Default().WithTelefone(telefone).Build();
+
+            _contatoRepository.Setup(s => s.Alterar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.ObterPorId(It.IsAny<Guid>()))
+                .Returns(new Contato(alterarContatoDto.Id,
+                    alterarContatoDto.Nome,
+                    alterarContatoDto.Telefone,
+                    alterarContatoDto.Email,
+                    alterarContatoDto.RegionalId));
 
             // Act
-            var result = Assert.Throws<Exception>(() => _adicionarContatoUseCase.Adicionar(adicionarContatoDto));
+            var result = Assert.Throws<Exception>(() => _alterarContatoUseCase.Alterar(alterarContatoDto));
 
             // Assert
             Assert.Contains("Telefone inválido", result.Message);
@@ -107,14 +141,21 @@ namespace UnitTest.UseCase.ContatoUseCase.Adicionar
         [Theory]
         [InlineData("")]
         [InlineData("     ")]
-        public void AdicionarContatoUseCase_Adicionar_ErroValidacaoEmailNuloVazio(string email)
+        public void AlterarContatoUseCase_Alterar_ErroValidacaoEmailNuloVazio(string email)
         {
             // Arrange
-            var adicionarContatoDto = _builder.Default().WithEmail(email).Build();
-            _contatoRepository.Setup(s => s.Adicionar(It.IsAny<Contato>()));
+            var alterarContatoDto = _builder.Default().WithEmail(email).Build();
+
+            _contatoRepository.Setup(s => s.Alterar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.ObterPorId(It.IsAny<Guid>()))
+                .Returns(new Contato(alterarContatoDto.Id,
+                    alterarContatoDto.Nome,
+                    alterarContatoDto.Telefone,
+                    alterarContatoDto.Email,
+                    alterarContatoDto.RegionalId));
 
             // Act
-            var result = Assert.Throws<Exception>(() => _adicionarContatoUseCase.Adicionar(adicionarContatoDto));
+            var result = Assert.Throws<Exception>(() => _alterarContatoUseCase.Alterar(alterarContatoDto));
 
             // Assert
             Assert.Contains("Email não pode ser nulo ou vazio", result.Message);
@@ -123,14 +164,21 @@ namespace UnitTest.UseCase.ContatoUseCase.Adicionar
         [Theory]
         [InlineData("testetestetestetestetestetestetestetestetestetestetestetestetestetestetestetestetestetestetesteteste" +
             "@testetestetestetestetestetestetestetestetestetestetesteteste")]
-        public void AdicionarContatoUseCase_Adicionar_ErroValidacaoEmailTamanho(string email)
+        public void AlterarContatoUseCase_Alterar_ErroValidacaoEmailTamanho(string email)
         {
             // Arrange
-            var adicionarContatoDto = _builder.Default().WithEmail(email).Build();
-            _contatoRepository.Setup(s => s.Adicionar(It.IsAny<Contato>()));
+            var alterarContatoDto = _builder.Default().WithEmail(email).Build();
+
+            _contatoRepository.Setup(s => s.Alterar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.ObterPorId(It.IsAny<Guid>()))
+                .Returns(new Contato(alterarContatoDto.Id,
+                    alterarContatoDto.Nome,
+                    alterarContatoDto.Telefone,
+                    alterarContatoDto.Email,
+                    alterarContatoDto.RegionalId));
 
             // Act
-            var result = Assert.Throws<Exception>(() => _adicionarContatoUseCase.Adicionar(adicionarContatoDto));
+            var result = Assert.Throws<Exception>(() => _alterarContatoUseCase.Alterar(alterarContatoDto));
 
             // Assert
             Assert.Contains("Foi atingido o número máximo de caracteres (150)", result.Message);
@@ -140,15 +188,21 @@ namespace UnitTest.UseCase.ContatoUseCase.Adicionar
         [InlineData("testedeemail")]
         [InlineData("email@@gmail.com")]
         [InlineData("teste@live")]
-        public void AdicionarContatoUseCase_Adicionar_ErroValidacaoEmailFormato(string email)
+        public void AlterarContatoUseCase_Alterar_ErroValidacaoEmailFormato(string email)
         {
             // Arrange
-            var adicionarContatoDto = _builder.Default().WithEmail(email).Build();
+            var alterarContatoDto = _builder.Default().WithEmail(email).Build();
 
-            _contatoRepository.Setup(s => s.Adicionar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.Alterar(It.IsAny<Contato>()));
+            _contatoRepository.Setup(s => s.ObterPorId(It.IsAny<Guid>()))
+                .Returns(new Contato(alterarContatoDto.Id,
+                    alterarContatoDto.Nome,
+                    alterarContatoDto.Telefone,
+                    alterarContatoDto.Email,
+                    alterarContatoDto.RegionalId));
 
             // Act
-            var result = Assert.Throws<Exception>(() => _adicionarContatoUseCase.Adicionar(adicionarContatoDto));
+            var result = Assert.Throws<Exception>(() => _alterarContatoUseCase.Alterar(alterarContatoDto));
 
             // Assert
             Assert.Contains("E-mail inválido", result.Message);

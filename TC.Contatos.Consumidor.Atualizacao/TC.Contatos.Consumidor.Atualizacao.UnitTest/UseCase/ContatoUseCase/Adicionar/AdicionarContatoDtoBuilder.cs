@@ -1,67 +1,69 @@
 ﻿using Bogus;
-using UseCase.ContatoUseCase.Adicionar;
+using UseCase.ContatoUseCase.Alterar;
 
-namespace UnitTest.UseCase.ContatoUseCase.Adicionar
+namespace UnitTest.UseCase.ContatoUseCase.Alterar
 {
-    public class AdicionarContatoDtoBuilder
+    public class AlterarContatoDtoBuilder
     {
-        private AdicionarContatoDto _adicionarContatoDto;
+        private AlterarContatoDto _alterarContatoDto;
 
-        public AdicionarContatoDtoBuilder()
+        public AlterarContatoDtoBuilder()
         {
-            _adicionarContatoDto = new AdicionarContatoDto()
+            _alterarContatoDto = new AlterarContatoDto()
             {
+                Id = Guid.Empty,
                 Nome = string.Empty,
                 Telefone = string.Empty,
                 Email = string.Empty,
                 RegionalId = Guid.Empty,
+
             };
         }
 
-        public AdicionarContatoDtoBuilder Default()
+        public AlterarContatoDtoBuilder Default()
         {
-            _adicionarContatoDto = new Faker<AdicionarContatoDto>("pt_BR")
+            _alterarContatoDto = new Faker<AlterarContatoDto>("pt_BR")
+                .RuleFor(x => x.Id, f => f.Random.Guid())
                 .RuleFor(x => x.Nome, f => f.Person.FullName)
                 .RuleFor(x => x.Telefone, f => f.Phone.PhoneNumber("9####-####"))
                 .RuleFor(x => x.Email, f => f.Internet.Email())
                 .RuleFor(x => x.RegionalId, f => f.Random.Guid());
-
             return this;
         }
 
-        public AdicionarContatoDtoBuilder WithId(Guid id)
+        public AlterarContatoDtoBuilder WithId(Guid id)
         {
-            _adicionarContatoDto.Id = id;
+            _alterarContatoDto.Id = id;
             return this;
         }
 
-        public AdicionarContatoDtoBuilder WithName(string nome)
+        public AlterarContatoDtoBuilder WithName(string nome)
         {
-            _adicionarContatoDto.Nome = nome;
+            _alterarContatoDto.Nome = nome;
             return this;
         }
 
-        public AdicionarContatoDtoBuilder WithTelefone(string telefone)
+        public AlterarContatoDtoBuilder WithTelefone(string telefone)
         {
-            _adicionarContatoDto.Telefone = telefone;
+            _alterarContatoDto.Telefone = telefone;
             return this;
         }
 
-        public AdicionarContatoDtoBuilder WithEmail(string email)
+        public AlterarContatoDtoBuilder WithEmail(string email)
         {
-            _adicionarContatoDto.Email = email;
+            _alterarContatoDto.Email = email;
             return this;
         }
 
-        public AdicionarContatoDtoBuilder WithRegionalId(Guid regionalId)
+        public AlterarContatoDtoBuilder WithRegionalId(Guid regionalId)
         {
-            _adicionarContatoDto.RegionalId = regionalId;
+            _alterarContatoDto.RegionalId = regionalId;
             return this;
         }
 
-        public AdicionarContatoDto Build()
+        public AlterarContatoDto Build()
         {
-            return _adicionarContatoDto;
+            return _alterarContatoDto;
         }
     }
 }
