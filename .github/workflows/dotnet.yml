@@ -69,8 +69,8 @@ jobs:
     
     # Container build and push to a Azure Container registry (ACR)
     - run: |
-        docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/contatos.consumidor.alteracao.worker:latest -f ./TC.Contatos.Consumidor.Alteracao/Dockerfile 
-        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/contatos.consumidor.alteracao.worker:latest
+        docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/contatos.consumidor.atualizacao.worker:latest -f ./TC.Contatos.Consumidor.Atualizacao/Dockerfile 
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/contatos.consumidor.atualizacao.worker:latest
     
     # Set the target Azure Kubernetes Service (AKS) cluster. 
     - uses: azure/aks-set-context@v1
@@ -104,9 +104,9 @@ jobs:
     - uses: azure/k8s-deploy@v1
       with:
         manifests: |
-          TC.Contatos.Consumidor.Alteracao/worker-deployment.yml
+          TC.Contatos.Consumidor.Atualizacao/worker-deployment.yml
         images: |
-          ${{ env.REGISTRY_NAME }}.azurecr.io/contatos.consumidor.alteracao.worker:latest
+          ${{ env.REGISTRY_NAME }}.azurecr.io/contatos.consumidor.atualizacao.worker:latest
         imagepullsecrets: |
           ${{ env.REGISTRY_NAME }}-registry-connection
         namespace: ${{ env.NAMESPACE }}
