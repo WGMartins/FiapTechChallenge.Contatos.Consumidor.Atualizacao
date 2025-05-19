@@ -5,6 +5,7 @@ using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
 using Domain.Interfaces;
+using System;
 
 namespace Infrastructure.RabbitMQ;
 
@@ -27,39 +28,35 @@ public class RabbitMQMessageConsumer : IMessageConsumer
         {
             var connection = await _connectionFactory();
 
-            using var channel = await connection.CreateChannelAsync();
+            var channel = await connection.CreateChannelAsync();
+
+            var consumer = new AsyncEventingBasicConsumer(channel);
+
+            consumer.ReceivedAsync += async (sender, eventArgs) =>
             {
-
-                var consumer = new AsyncEventingBasicConsumer(channel);
-
-                consumer.ReceivedAsync += async (sender, eventArgs) =>
+                try
                 {
-                    try
+                    var body = eventArgs.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    var contato = JsonSerializer.Deserialize<Contato>(message);
+
+                    if (OnMessageReceived != null)
                     {
-                        var body = eventArgs.Body.ToArray();
-                        var message = Encoding.UTF8.GetString(body);
-                        var contato = JsonSerializer.Deserialize<Contato>(message);
-
-                        if (OnMessageReceived != null)
-                        {
-                            await OnMessageReceived(contato);
-                            await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
-                        }
+                        await OnMessageReceived(contato);
+                        await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
                     }
-                    catch (Exception)
-                    {
-                        await channel.BasicNackAsync(eventArgs.DeliveryTag, false, false);
-                    }
-                };
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception.StackTrace);
+                    await channel.BasicNackAsync(eventArgs.DeliveryTag, false, false);
+                }
+            };
 
-                await channel.BasicConsumeAsync(
-                        queue: _settings.Value.Queue,
-                        autoAck: false,
-                        consumer: consumer);
-
-                Console.WriteLine(" Press [enter] to exit.");
-                Console.ReadLine();
-            }
+            await channel.BasicConsumeAsync(
+                    queue: _settings.Value.Queue,
+                    autoAck: false,
+                    consumer: consumer);
         }
         catch (Exception ex)
         {
