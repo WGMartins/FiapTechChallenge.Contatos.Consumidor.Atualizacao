@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: consumidor-atualizacao-worker
   labels:
-    app: consumidor-worker
+    app: consumidor-atualizacao-worker
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: consumidor-worker
+      app: consumidor-atualizacao-worker
   template:
     metadata:
       labels:
-        app: consumidor-worker
+        app: consumidor-atualizacao-worker
     spec:
       containers:
       - name: consumidor-atualizacao-worker
