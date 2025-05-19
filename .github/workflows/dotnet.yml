@@ -86,10 +86,10 @@ jobs:
 
     - name: Criar ou atualizar ConfigMap
       run: |
-          kubectl create configmap configmap-worker \
-            --from-literal=RabbitMQ__HostName=${{ secrets.RABBITMQ__HOSTNAME }} \
-            --from-literal=ConnectionStrings__ConnectionString=${{ secrets.CONNECTIONSTRINGS__CONNECTIONSTRING }} \
-            --dry-run=client -o yaml | kubectl apply --field-manager=github-actions -f -
+        kubectl create configmap configmap-worker \
+          --from-literal=RabbitMQ__HostName=${{ secrets.RABBITMQ__HOSTNAME }} \
+          --from-literal=ConnectionStrings__ConnectionString=${{ secrets.CONNECTIONSTRINGS__CONNECTIONSTRING }} \
+          --dry-run=client -o yaml | kubectl apply --field-manager=github-actions -f -
     
     # Create imagepullsecret for Azure Container registry (ACR)
     - uses: azure/k8s-create-secret@v1
